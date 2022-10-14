@@ -1,0 +1,387 @@
+The web program is attached in link
+https://macoutreach.rocks/share/57dd3998
+
+import Bootstrap.Form.Input as Input
+import Html.Events as Events
+import Dict exposing (Dict)
+
+--this appears at the top of the browser screen (or on the tab)
+title : String
+title = "Seasame Street Confidential"
+
+type Bear = B Name Habitat Colour Lifespan Ins Link
+
+type alias Link = String
+type alias Ins = Bool
+type alias Name = String
+type alias Habitat = String
+type alias Colour = String
+type alias Lifespan = String ---------------- Number of years a paticular bear lives
+
+ourDB = [ B "northamerican black bear" "north eastern america" "black" "40" False "https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1862/1048/blackbearasiatic.jpg?ve=1&tl=1"
+, B "polar bear" "antarctica" "white" "45" False "https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2019/12/1862/1048/polar-bear-1.jpg?ve=1&tl=1"
+, B "grizzly bear" "north america" " brown" "40" False "https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1862/1048/a6fd9ac3-gb.jpg?ve=1&tl=1"
+, B "panda bear" "china" "black and white" "41" False "https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2019/04/1862/1048/ContentBroker_contentid-f68e239c5fae483eae4dede7d3c1d11e.png?ve=1&tl=1"
+, B "sun bear" "south east asia" "light green" "50" False "https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2019/06/1862/1048/iStock-Sun-Bear.jpg?ve=1&tl=1"
+, B "andean bear" "south america" "black and brown" "45" False "https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2020/03/1862/1048/Andean-Bear-iStock.jpg?ve=1&tl=1"
+, B " short faced bear" "america" "green and black" "45" False "https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2020/03/1862/1048/Short-Faced-Bear-iStock.jpg?ve=1&tl=1"
+, B "asiatic black bear" "asia" "black" "50" False "https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1862/1048/blackbearasiatic.jpg?ve=1&tl=1"
+, B "brown bear" "europe" " brown" "50" False "https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1862/1048/28_rts1c041.jpg?ve=1&tl=1"
+, B "sloth bear" "nepal" "black" "55" False "https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2019/10/1862/1048/sloth-bear-iStock.jpg?ve=1&tl=1"
+]
+
+containsKeyword : String -> Bear -> Bear
+containsKeyword keyword ( B name habitat colour lifespan ins link) =
+if ((String.contains keyword name) || (String.contains keyword habitat) || (String.contains keyword colour)) then
+( B name habitat colour lifespan True link)
+else
+( B name habitat colour lifespan False link)
+
+checkState : List (Bear) -> Bear
+checkState db =
+case db of
+( B name habitat colour lifespan ins link)::rest -> case ins of
+True -> ( B name habitat colour lifespan ins link)
+False -> checkState rest
+[] -> (B "northamerican black bear" "north eastern america" "black" "40" False "https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1862/1048/blackbearasiatic.jpg?ve=1&tl=1")
+
+listStringToString : List (String) -> String
+listStringToString stringlist =
+case stringlist of
+p1::rest -> p1
+[] -> ""
+
+mkCard ( B name habitat colour lifespan ins link) =
+[Accordion.card
+{ id = "card1"
+, options = []
+, header =
+Accordion.header [] <| Accordion.toggle [] [ Html.text "Name" ]
+, blocks =
+[ Accordion.block []
+[ Block.text [] [ Html.text name ] ]
+]
+}
+, Accordion.card
+{ id = "card2"
+, options = []
+, header =
+Accordion.header [] <| Accordion.toggle [] [ Html.text "Habitat" ]
+, blocks =
+[ Accordion.block []
+[ Block.text [] [ Html.text habitat ] ]
+]
+}
+, Accordion.card
+{ id = "card3"
+, options = []
+, header =
+Accordion.header [] <| Accordion.toggle [] [ Html.text "Colour" ]
+, blocks =
+[ Accordion.block []
+[ Block.text [] [ Html.text colour ] ]
+]
+}
+, Accordion.card
+{ id = "card4"
+, options = []
+, header =
+Accordion.header [] <| Accordion.toggle [] [ Html.text "lifesapn" ]
+, blocks =
+[ Accordion.block []
+[ Block.text [] [ Html.text lifespan ] ]
+]
+}
+]
+
+mkImage ( B name habitat colour lifespan ins link) =
+[
+Slide.config [] (image "250px" link)
+]
+
+blankLine = Grid.row [] --this is an empty row (to add blank space)
+[ Grid.col []
+[ Html.h6[Spacing.my3][] --change spacing number to make empty row bigger or smaller (0-5)
+]
+]
+
+page : Model -> List (Html Msg)
+page model =
+[ Grid.container [] -- Wrap in a container to center the navbar
+[ Navbar.config NavbarMsg
+|> Navbar.withAnimation
+|> Navbar.collapseMedium -- Collapse menu at the medium breakpoint
+|> Navbar.info -- Customize coloring
+|> Navbar.brand -- Add logo to your brand with a little styling to align nicely
+[ href "#" ]
+[ Html.img
+[ src "https://www.kindpng.com/picc/m/550-5501195_black-bear-icon-hd-png-download.png"
+, class "d-inline-block align-top"
+, style "width" "120px"
+]
+[]
+]
+|> Navbar.items
+[ Navbar.itemLink
+[ href "#" ] [ Html.text "Seasame Street Confidential" ]
+, Navbar.dropdown
+{ id = "mydropdown"
+, toggle = Navbar.dropdownToggle [] [ Html.text "Bears" ]
+, items =
+List.map ( \ bear -> Navbar.dropdownItem
+[ href "#" ]
+[ bear |> Html.text ]
+)
+(["Polar Bear","Grizzly Bear","Panda Bear","Sun Bear","Andean Bear","North American Black Bear","Short-Faced Bear","Asiatic Black Bear","Brown Bear","Sloth Bear"] )
+}
+]
+|> Navbar.customItems
+[ Navbar.formItem []
+[ Input.text [ Input.attrs [placeholder "character search", value model.searchString, Events.onInput UpdateSearch ]]
+]
+]
+|> Navbar.view model.navbarState
+]
+--HEADER
+, Html.text model.searchString
+, Html.div [] []
+-- added the carousel
+,Html.h2 [] [Html.text "Bear HighLights"]
+,Carousel.config (CarouselMsg 0 {-the id number of the Carousel-}) [style "height" "250px"]
+|> Carousel.slides
+(mkImage (checkState((List.map (containsKeyword (listStringToString model.searchList)) ourDB))))
+|> Carousel.withIndicators
+|> Carousel.view (carouselState 0 model.carouselStates)
+-- added the accordians
+, Grid.row []
+[ Grid.col []
+[ Accordion.config (AccordionMsg 0) -- the ID number of the accordion
+|> Accordion.withAnimation
+|> Accordion.cards
+(mkCard (checkState((List.map (containsKeyword (listStringToString model.searchList)) ourDB))))
+
+|> Accordion.view (accordionState 0 {-same id as above-} model.accordionStates)
+]
+]
+
+]
+
+{- The number of accordions, carousels and pop ups.
+To add more than one of each, you must increase these numbers and then make sure to
+put the correct id in the code where you add it. The ids start at 0 and go up from there
+(0, 1, 2, 3, etc.)
+-}
+numAccordions = 1
+numCarousels = 2
+numPopUps = 1
+
+type alias Model =
+{ navKey : Navigation.Key
+, page : Page
+, time : Float
+, navbarState : Navbar.State
+, accordionStates : Dict Int Accordion.State --ADD ACCORDION
+, carouselStates : Dict Int Carousel.State -- ADD CAROUSEL
+, modalVisibilities : Dict Int Modal.Visibility -- ADD MODAL
+, searchString : String
+, searchList : List String
+}
+
+type Page
+= Home
+| NotFound
+
+type Msg
+= UrlChange Url
+| ClickedLink UrlRequest
+| NavbarMsg Navbar.State
+| NoOp
+| AccordionMsg Int Accordion.State --ADD ACCORDION
+| CarouselMsg Int Carousel.Msg --ADD CAROUSEL
+| CloseModal Int
+| ShowModal Int
+| Tick Float
+| UpdateSearch String
+
+init : Flags -> Url -> Navigation.Key -> ( Model, Cmd Msg )
+init flags url key =
+let
+( navbarState, navCmd ) =
+Navbar.initialState NavbarMsg
+
+( model, urlCmd ) =
+urlUpdate url { navKey = key
+, navbarState = navbarState
+, page = Home
+, time = 0
+, accordionStates = Dict.fromList <| List.map (\n -> (n,Accordion.initialStateCardOpen "")) (List.range 0 (numAccordions-1)) --ADD ACCORDION - what does accordion look like when you open the page?
+--Accordion.initialStateCardOpen "card1" -- if you put a card id, the accordion starts with that card open
+, carouselStates = Dict.fromList <| List.map (\n -> (n,Carousel.initialState)) (List.range 0 (numCarousels-1))
+, modalVisibilities = Dict.fromList <| List.map (\n -> (n,Modal.hidden)) (List.range 0 (numPopUps-1))
+, searchString = ""
+, searchList = []
+}
+in
+( model, Cmd.batch [ urlCmd, navCmd ] )
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+--ADD ACCORDION - now that there are multiple subscriptions, they need to be grouped in Sub.batch
+Sub.batch [Navbar.subscriptions model.navbarState NavbarMsg
+, Sub.batch <| List.map (\(n, s) -> Accordion.subscriptions s (AccordionMsg n)) <| Dict.toList model.accordionStates
+, Sub.batch <| List.map (\(n, s) -> Carousel.subscriptions s (CarouselMsg n)) <| Dict.toList model.carouselStates
+, onAnimationFrame ( \ posix -> Tick ((Time.posixToMillis posix |> toFloat) * 0.001) )
+]
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+case msg of
+ClickedLink req ->
+case req of
+Browser.Internal url ->
+( model, Navigation.pushUrl model.navKey <| Url.toString url )
+
+Browser.External href ->
+( model, Navigation.load href )
+
+UrlChange url ->
+urlUpdate url model
+
+NavbarMsg state ->
+( { model | navbarState = state }
+, Cmd.none
+)
+
+NoOp -> (model, Cmd.none)
+
+--ADD ACCORDION
+AccordionMsg id state ->
+( { model | accordionStates = Dict.insert id state model.accordionStates }
+, Cmd.none
+)
+
+--ADD CAROUSEL
+CarouselMsg id cMsg ->
+( {model | carouselStates = Dict.update id
+(\m -> case m of
+Just s -> Just <| Carousel.update cMsg s
+Nothing -> Nothing
+) model.carouselStates
+
+}
+, Cmd.none
+)
+
+--ADD MODAL
+CloseModal id ->
+( { model | modalVisibilities = Dict.insert id Modal.hidden model.modalVisibilities } , Cmd.none )
+
+ShowModal id ->
+( { model | modalVisibilities = Dict.insert id Modal.shown model.modalVisibilities } , Cmd.none )
+
+Tick t -> ({ model | time = t }, Cmd.none)
+
+UpdateSearch str ->
+let searchString = String.filter filterChars str
+listWords = (String.split " " (String.toLower searchString))
+firstList = List.take ((List.length listWords)-1) listWords
+lastList = List.drop ((List.length listWords)-1) listWords
+searchList = (List.filter commonWrds firstList)++lastList --filter out common words only from fully typed keyword
+in
+({ model | searchString = searchString
+, searchList = searchList
+--, searching = True
+--, searchBeginT = if model.searching then model.searchBeginT else model.t
+--, searchContinuesT = model.t
+--, menuState = Closed
+}, Cmd.none )
+
+filterChars char = if Char.isLower char || Char.isUpper char || Char.isDigit char || char == ' ' then True else False
+
+commonWrds wrd = case wrd of
+"the" -> False
+"best" -> False
+"with" -> False
+"about" -> False
+"and" -> False
+"as" -> False
+"at" -> False
+"a" -> False
+"to" -> False
+"in" -> False
+"by" -> False
+"on" -> False
+"for" -> False
+"from" -> False
+"greatest" -> False
+"ever" -> False
+"school" -> False
+"grade" -> False
+"catholic" -> False
+"public" -> False
+"junior" -> False
+"senior" -> False
+"elementary" -> False
+"secondary" -> False
+"district" -> False
+"" -> False
+_ -> True
+
+resetViewport : Cmd Msg
+resetViewport =
+Task.perform (\_ -> NoOp) (Dom.setViewport 0 0)
+
+urlUpdate : Url -> Model -> ( Model, Cmd Msg )
+urlUpdate url model =
+case decode url of
+Nothing ->
+( { model | page = NotFound }, resetViewport )
+
+Just route ->
+( { model | page = route }, resetViewport )
+
+decode : Url -> Maybe Page
+decode url =
+{ url | path = Maybe.withDefault "" url.fragment, fragment = Nothing }
+|> UrlParser.parse routeParser
+
+routeParser : Parser (Page -> a) a
+routeParser =
+UrlParser.oneOf
+[ UrlParser.map Home top
+]
+
+view : Model -> Browser.Document Msg
+view model =
+{ title = case model.page of
+Home ->
+title
+
+NotFound ->
+"Page Not Found"
+, body =
+[
+Html.node "link" [attribute "rel" "stylesheet", href "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"] []
+, Html.node "link" [attribute "rel" "stylesheet", href "https://documents.mcmaster.ca/www/cdn/css/1.0/mcm-bw.css"] []
+, Html.div []
+[ mainContent model
+]
+]
+
+}
+
+mainContent : Model -> Html Msg
+mainContent model =
+Grid.container [] <|
+case model.page of
+Home ->
+page model
+
+NotFound ->
+pageNotFound
+
+pageNotFound : List (Html Msg)
+pageNotFound =
+[ Html.h1 [Spacing.my4] [ Html.text "Not found" ]
+, Html.text "Sorry, couldn't find that page"
+]
